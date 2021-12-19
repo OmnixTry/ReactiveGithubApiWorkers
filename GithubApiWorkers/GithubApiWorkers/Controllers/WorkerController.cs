@@ -1,4 +1,5 @@
 ﻿using GithubApiWorkers.Models;
+using GithubApiWorkers.Services;
 using Microsoft.AspNetCore.Mvc;
 using Octokit;
 using System;
@@ -15,16 +16,19 @@ namespace GithubApiWorkers.Controllers
 	[Route("[controller]")]
 	public class WorkerController : ControllerBase
 	{
-		private readonly HttpClient http;
+		
+		private readonly GithubConnectionService github;
 
-		public WorkerController(HttpClient http)
+		public WorkerController(GithubConnectionService github)
 		{
-			this.http = http;
+			this.github = github;
 		}
 		[HttpPost]
 		public async Task<IActionResult> CreateWorker(WorkerCreationModel creationModel)
 		{
-			var productInformation = new ProductHeaderValue("ReactiveWorkers");
+			github.RunKeywordPulling(creationModel);
+			return Ok();
+			/*var productInformation = new ProductHeaderValue("ReactiveWorkers");
 			var credentials = new Credentials("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");
 			var client = new GitHubClient(productInformation) { Credentials = credentials };
 
@@ -34,6 +38,7 @@ namespace GithubApiWorkers.Controllers
 			searchRequest.PerPage = 100;
 
 			var x = await client.Search.SearchCode(searchRequest);
+			return Ok(x);*/
 
 			/*var user = await github.User.Get("half-ogre");
 			Console.WriteLine(user.Followers + " folks love the half ogre!");
@@ -48,8 +53,13 @@ namespace GithubApiWorkers.Controllers
 			http.DefaultRequestHeaders.UserAgent.Add(new System.Net.Http.Headers.ProductInfoHeaderValue("AppName", "1.0"));
 
 			var x = await http.SendAsync(message);*/
+		}
 
-			return Ok(x);
+		[HttpDelete]
+		public IActionResult RemoveKeyword([FromQuery] int id)
+		{
+			github.RemoveKeyword(id);
+			return Ok();
 		}
 	}
 }

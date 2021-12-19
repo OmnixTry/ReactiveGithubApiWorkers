@@ -1,5 +1,7 @@
+using GithubApiWorkers.Contract;
 using GithubApiWorkers.Controllers;
 using GithubApiWorkers.Extensions;
+using GithubApiWorkers.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -37,6 +39,10 @@ namespace GithubApiWorkers
 			});
 			services.AddHttpClient<WorkerController>(c => c.BaseAddress = new System.Uri("https://api.github.com"));
 			services.AddGithubClient();
+			services.AddSingleton<GithubConnectionService>();
+			services.AddSingleton<ReposDataUpdateService>();
+			services.AddSingleton<IDistinctNameService, DistinctNameInMemoryService>();
+			services.AddSingleton<IResultDispatcher, ConsoleResultDispatcher>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
