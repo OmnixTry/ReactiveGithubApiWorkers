@@ -16,12 +16,13 @@ namespace GithubApiWorkers.Services
 			this.client = client;
 		}
 
-		public async Task<SearchCodeResult> LoadPage(string keyword, int page, int perPage = 100)
+		public async Task<SearchCodeResult> LoadPage(string keyword, int page, Language language, int perPage = 100)
 		{
-			var searchRequest = new SearchCodeRequest("KmsKeyLoader");
-			searchRequest.Language = Language.CSharp;
+			var searchRequest = new SearchCodeRequest(keyword);
 			searchRequest.SortField = CodeSearchSort.Indexed;
-			searchRequest.PerPage = 100;
+			searchRequest.Language = language;
+			searchRequest.Page = page;
+			searchRequest.PerPage = perPage;
 
 			return await client.Search.SearchCode(searchRequest);
 		}
