@@ -53,13 +53,6 @@ namespace GithubApiWorkers.Services
 			var observable = Observable.Merge(pageQuerries).Take(numberOfPages).Buffer(numberOfPages).Select(x =>
 			{
 				return x.SelectMany(x => x.Items);
-				/*.GroupBy(i => i.Repository.Id, e => (e.Repository.Name, e.Repository.FullName, e.Repository.Url))
-				.Select<IGrouping<long, (string Name, string FullName, string Url)>, RepoModel>((g, v) =>
-				 {
-					 return new RepoModel() { Name = g.First().Name, FullName = g.First().FullName, Quantity = g.Count(), Url = g.First().Url };
-						//return g.Select(x => new RepoModel() { Name = x.Name, FullName = x.FullName, Quantity = g, Url = g.First().Url });
-					});*/
-				//.ToList();
 			}).Select(x => {
 				return x.GroupBy(x => x.Repository.Id, (x) => (x.Repository, x.Name)).Select(g => new RepoModel() 
 					{ 
