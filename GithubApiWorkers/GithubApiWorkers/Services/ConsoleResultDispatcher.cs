@@ -9,7 +9,7 @@ namespace GithubApiWorkers.Services
 {
 	public class ConsoleResultDispatcher : IResultDispatcher
 	{
-		public void DispatchMostMentioned(ReposResultModel repos)
+		public virtual async Task DispatchMostMentioned(ReposResultModel repos)
 		{
 			Console.WriteLine("-------\nMostMentioned");
 			foreach (var item in repos.Data)
@@ -19,7 +19,7 @@ namespace GithubApiWorkers.Services
 			Console.WriteLine("-------");
 		}
 
-		public void DispatchNewRepos(ReposResultModel repos)
+		public virtual async Task DispatchNewRepos(ReposResultModel repos)
 		{
 			foreach (var item in repos.Data)
 			{
@@ -28,7 +28,7 @@ namespace GithubApiWorkers.Services
 			Console.WriteLine("-------");
 		}
 
-		public void DispatchPopularLanguages(LanguageResultModel repos)
+		public virtual async Task DispatchPopularLanguages(LanguageResultModel repos)
 		{
 			Console.WriteLine("-------\nMostPopularLanguages");
 			foreach (var item in repos.Data)

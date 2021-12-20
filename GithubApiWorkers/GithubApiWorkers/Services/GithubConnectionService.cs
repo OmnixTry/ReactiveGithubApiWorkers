@@ -31,7 +31,7 @@ namespace GithubApiWorkers.Services
 		{
 			var searchRequest = new SearchCodeRequest(keyword);
 			searchRequest.SortField = CodeSearchSort.Indexed;
-			searchRequest.Language = language;
+			//searchRequest.Language = language;
 			searchRequest.Page = page;
 			searchRequest.PerPage = perPage;
 			var res = await client.Search.SearchCode(searchRequest);
@@ -54,14 +54,22 @@ namespace GithubApiWorkers.Services
 			{
 				return x.SelectMany(x => x.Items);
 			}).Select(x => {
-				return x.GroupBy(x => x.Repository.Id, (x) => (x.Repository, x.Name)).Select(g => new RepoModel() 
-					{ 
+				
+				return x.GroupBy(x => x.Repository.Id, (x) => (x.Repository, x.Name)).Select(g => {
+					string lang = "";
+					try
+					{
+						lang = g.First().Name.Split('.')[1];
+					}catch(Exception e) { }
+					return new RepoModel()
+					{
 						FullName = g.First().Repository.FullName,
-						Language = g.First().Name.Split('.')[1],
+						Language = lang,
 						Name = g.First().Repository.Name,
 						Url = g.First().Repository.Url,
 						Date = DateTime.Now,
 						Quantity = g.Count()
+					};
 				});
 			});
 
@@ -88,6 +96,7 @@ namespace GithubApiWorkers.Services
 			KeywordConnections.Add(creationModel.KeywordId, new List<IDisposable>());
 			var newReposCOnnection = reposDataUpdate.Repos[creationModel.KeywordId].Subscribe(x => ProcessNewRepos(creationModel.KeywordId, x));
 			var top5ReposConnection = reposDataUpdate.Repos[creationModel.KeywordId].Subscribe(async x => await ProcessTop5(creationModel.KeywordId, x));
+			//var toplangsConnection = reposDataUpdate.Repos[creationModel.KeywordId].Subscribe(async x => await ProcessTop5(creationModel.KeywordId, x));
 			KeywordConnections[creationModel.KeywordId].Add(connection);
 			KeywordConnections[creationModel.KeywordId].Add(newReposCOnnection);
 			KeywordConnections[creationModel.KeywordId].Add(top5ReposConnection);
@@ -110,6 +119,7 @@ namespace GithubApiWorkers.Services
 			Console.WriteLine("ProcessNewRepos");
 			var distinctRepos = distinctNameService.FilterUnique(keywordId, repos);
 			resultDispatcher.DispatchNewRepos(new ReposResultModel() { KeywordId = keywordId, Data = repos});
+			ProcessTopLanguages(keywordId);
 			return distinctRepos;
 		}
 
@@ -154,6 +164,7 @@ namespace GithubApiWorkers.Services
 
 		private IEnumerable<LanguageModel> ProcessTopLanguages(int keywordId)
 		{
+			Console.WriteLine("ProcessLanguages");
 			var langs = distinctNameService
 				.GetTodayRepos(keywordId)
 				.GroupBy(x => x.Language)

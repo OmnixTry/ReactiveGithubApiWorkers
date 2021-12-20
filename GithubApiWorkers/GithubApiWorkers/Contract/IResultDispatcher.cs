@@ -8,8 +8,8 @@ namespace GithubApiWorkers.Contract
 {
 	public interface IResultDispatcher
 	{
-		void DispatchNewRepos(ReposResultModel repos);
-		void DispatchMostMentioned(ReposResultModel repos);
-		void DispatchPopularLanguages(LanguageResultModel repos);
+		Task DispatchNewRepos(ReposResultModel repos);
+		Task DispatchMostMentioned(ReposResultModel repos);
+		Task DispatchPopularLanguages(LanguageResultModel repos);
 	}
 }

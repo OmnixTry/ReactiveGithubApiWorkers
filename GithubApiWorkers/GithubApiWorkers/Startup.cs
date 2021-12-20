@@ -42,7 +42,7 @@ namespace GithubApiWorkers
 			services.AddSingleton<GithubConnectionService>();
 			services.AddSingleton<ReposDataUpdateService>();
 			services.AddSingleton<IDistinctNameService, DistinctNameInMemoryService>();
-			services.AddSingleton<IResultDispatcher, ConsoleResultDispatcher>();
+			services.AddSingleton<IResultDispatcher, ConsoleAndComunicationDispatcherService>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
