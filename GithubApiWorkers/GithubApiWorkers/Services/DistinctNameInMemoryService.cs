@@ -35,5 +35,10 @@ namespace GithubApiWorkers.Services
 			}
 			return newList;
 		}
+
+		public IEnumerable<RepoModel> GetTodayRepos(int keyword)
+		{
+			return Existing[keyword].Values.Where(x => x.Date > DateTime.Now - TimeSpan.FromDays(1));
+		}
 	}
 }

@@ -10,6 +10,6 @@ namespace GithubApiWorkers.Contract
 	{
 		void DispatchNewRepos(ReposResultModel repos);
 		void DispatchMostMentioned(ReposResultModel repos);
-		void DispatchPopularLanguages(ReposResultModel repos);
+		void DispatchPopularLanguages(LanguageResultModel repos);
 	}
 }

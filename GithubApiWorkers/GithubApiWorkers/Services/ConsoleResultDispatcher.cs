@@ -11,7 +11,12 @@ namespace GithubApiWorkers.Services
 	{
 		public void DispatchMostMentioned(ReposResultModel repos)
 		{
-			throw new NotImplementedException();
+			Console.WriteLine("-------\nMostMentioned");
+			foreach (var item in repos.Data)
+			{
+				Console.WriteLine($"{item.FullName} {item.Quantity} {item.Language}");
+			}
+			Console.WriteLine("-------");
 		}
 
 		public void DispatchNewRepos(ReposResultModel repos)
@@ -23,9 +28,14 @@ namespace GithubApiWorkers.Services
 			Console.WriteLine("-------");
 		}
 
-		public void DispatchPopularLanguages(ReposResultModel repos)
+		public void DispatchPopularLanguages(LanguageResultModel repos)
 		{
-			throw new NotImplementedException();
+			Console.WriteLine("-------\nMostPopularLanguages");
+			foreach (var item in repos.Data)
+			{
+				Console.WriteLine($"{item.Language} {item.Frequency}");
+			}
+			Console.WriteLine("-------");
 		}
 	}
 }

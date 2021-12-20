@@ -75,7 +75,7 @@ namespace GithubApiWorkers.Services
 			return observable;
 		}
 
-		public void RunKeywordPulling(WorkerCreationModel creationModel, int perPage = 100)
+		public async Task RunKeywordPulling(WorkerCreationModel creationModel, int perPage = 100)
 		{
 			reposDataUpdate.AddWord(creationModel.KeywordId);
 			TimeSpan time = TimeSpan.FromSeconds(creationModel.Frequency);
@@ -85,7 +85,6 @@ namespace GithubApiWorkers.Services
 				Console.WriteLine(x);
 				QuerrySeriesOfPages(creationModel.Keyword, creationModel.NumberOfPages, Enum.Parse<Language>(creationModel.Language), perPage)
 				.Subscribe(x => {
-					Console.WriteLine(x);
 					var list = x.OrderByDescending(c => c.Quantity).ToList();
 					reposDataUpdate.SendWord(creationModel.KeywordId, list);
 					Console.WriteLine(list.Count());
@@ -95,9 +94,12 @@ namespace GithubApiWorkers.Services
 
 			KeywordConnections.Add(creationModel.KeywordId, new List<IDisposable>());
 			var newReposCOnnection = reposDataUpdate.Repos[creationModel.KeywordId].Subscribe(x => ProcessNewRepos(creationModel.KeywordId, x));
+			var top5ReposConnection = reposDataUpdate.Repos[creationModel.KeywordId].Subscribe(async x => await ProcessTop5(creationModel.KeywordId, x));
 			KeywordConnections[creationModel.KeywordId].Add(connection);
 			KeywordConnections[creationModel.KeywordId].Add(newReposCOnnection);
-
+			KeywordConnections[creationModel.KeywordId].Add(top5ReposConnection);
+			var asObs = await Observable.Interval(time).FirstOrDefaultAsync();
+			Console.WriteLine(asObs);
 
 		}
 
@@ -116,6 +118,56 @@ namespace GithubApiWorkers.Services
 			var distinctRepos = distinctNameService.FilterUnique(keywordId, repos);
 			resultDispatcher.DispatchNewRepos(new ReposResultModel() { KeywordId = keywordId, Data = repos});
 			return distinctRepos;
+		}
+
+		private async Task<IEnumerable<RepoModel>> ProcessTop5(int keywordId, IEnumerable<RepoModel> repos)
+		{
+			Console.WriteLine("ProcessTop5");
+			var prevTop = await reposDataUpdate
+				.Top5Repos[keywordId]
+				.FirstOrDefaultAsync();
+			var newTop = prevTop
+				.Concat(repos)
+				.GroupBy(x => x.FullName)
+				.Select(x => x.OrderByDescending(r => r.Quantity).First())
+				.OrderByDescending(x => x.Quantity)
+				.Take(5);
+
+			prevTop = await reposDataUpdate
+				.Top5Repos[keywordId]
+				.FirstOrDefaultAsync();
+			if(prevTop.Count() != newTop.Count() || AreDifferent())
+			{
+				reposDataUpdate.Top5Repos[keywordId].OnNext(newTop);
+				resultDispatcher.DispatchMostMentioned(new ReposResultModel() { KeywordId = keywordId, Data = newTop });
+				return newTop;
+
+			}
+			return null;
+
+
+			bool AreDifferent()
+			{
+				foreach(var item in prevTop.Zip(newTop))
+				{
+					if(item.First.FullName != item.Second.FullName || item.First.Quantity != item.Second.Quantity)
+					{
+						return true;
+					}
+				}
+				return false;
+			}
+		}
+
+		private IEnumerable<LanguageModel> ProcessTopLanguages(int keywordId)
+		{
+			var langs = distinctNameService
+				.GetTodayRepos(keywordId)
+				.GroupBy(x => x.Language)
+				.Select<IGrouping<string, RepoModel>, LanguageModel>(x => new LanguageModel() { Language = x.Key, Frequency = x.Sum(r => r.Quantity) })
+				.OrderByDescending(x => x.Frequency).ToList();
+			resultDispatcher.DispatchPopularLanguages(new LanguageResultModel() { KeywordId = keywordId, Data = langs });
+			return langs;
 		}
 	}
 }

@@ -10,5 +10,6 @@ namespace GithubApiWorkers.Contract
 	{
 		IEnumerable<RepoModel> FilterUnique(int keywordId, IEnumerable<RepoModel> repos);
 
+		IEnumerable<RepoModel> GetTodayRepos(int keyword);
 	}
 }

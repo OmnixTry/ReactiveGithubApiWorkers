@@ -13,9 +13,11 @@ namespace GithubApiWorkers.Services
 		public ReposDataUpdateService()
 		{
 			Repos = new Dictionary<int, Subject<IEnumerable<RepoModel>>>();
+			Top5Repos = new Dictionary<int, BehaviorSubject<IEnumerable<RepoModel>>>();
 		}
 
 		public Dictionary<int, Subject<IEnumerable<RepoModel>>> Repos { get; set; }
+		public Dictionary<int, BehaviorSubject<IEnumerable<RepoModel>>> Top5Repos { get; set; }
 
 		public void SendWord(int wordId, IEnumerable<RepoModel> searchCode)
 		{
@@ -25,6 +27,7 @@ namespace GithubApiWorkers.Services
 		public void AddWord(int id)
 		{
 			Repos.Add(id, new Subject<IEnumerable<RepoModel>>());
+			Top5Repos.Add(id, new BehaviorSubject<IEnumerable<RepoModel>>(new List<RepoModel>()));
 		}
 	}
 }
