@@ -13,7 +13,7 @@ namespace GithubApiWorkers.Extensions
 		public static void AddGithubClient(this IServiceCollection services)
 		{
 			string token;
-			using (StreamReader reader = new StreamReader("crd.txt"))
+			using (StreamReader reader = new StreamReader("./crd.txt"))
 			{
 				token = reader.ReadLine();
 			}

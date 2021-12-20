@@ -27,7 +27,7 @@ namespace GithubApiWorkers.Services
 			this.KeywordConnections = new Dictionary<int, List<IDisposable>>();
 		}
 
-		public async Task<SearchCodeResult> LoadPage(string keyword, int page, Language language, int perPage = 100)
+		public async Task<SearchCodeResult> LoadPage(string keyword, int page, int perPage = 100)
 		{
 			var searchRequest = new SearchCodeRequest(keyword);
 			searchRequest.SortField = CodeSearchSort.Indexed;
@@ -38,7 +38,7 @@ namespace GithubApiWorkers.Services
 			return res;
 		}
 
-		public IObservable<IEnumerable<RepoModel>> QuerrySeriesOfPages(string keyword, int numberOfPages, Language language, int perPage = 100)
+		public IObservable<IEnumerable<RepoModel>> QuerrySeriesOfPages(string keyword, int numberOfPages, int perPage = 100)
 		{
 			IObservable<SearchCodeResult>[] pageQuerries = new IObservable<SearchCodeResult>[numberOfPages];
 			for(int i = 0; i < numberOfPages; i++)
@@ -46,7 +46,7 @@ namespace GithubApiWorkers.Services
 				int p = i + 1;
 				pageQuerries[i] = Observable.FromAsync(
 					async () => 
-					await LoadPage(keyword, p, language, perPage)
+					await LoadPage(keyword, p, perPage)
 					);
 			}
 
@@ -84,7 +84,7 @@ namespace GithubApiWorkers.Services
 			var connection = Observable.Interval(time).Subscribe(x =>
 			{
 				Console.WriteLine(x);
-				QuerrySeriesOfPages(creationModel.Keyword, creationModel.NumberOfPages, Enum.Parse<Language>(creationModel.Language), perPage)
+				QuerrySeriesOfPages(creationModel.Keyword, creationModel.NumberOfPages, perPage)
 				.Subscribe(x => {
 					var list = x.OrderByDescending(c => c.Quantity).ToList();
 					reposDataUpdate.SendWord(creationModel.KeywordId, list);
