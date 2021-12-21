@@ -31,6 +31,7 @@ namespace GithubApiWorkers.Services
 				else if(Existing[keyword][item.FullName].Quantity != item.Quantity)
 				{
 					Existing[keyword][item.FullName] = item;
+					newList.Add(item);
 				}
 			}
 			return newList;

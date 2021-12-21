@@ -114,7 +114,7 @@ namespace GithubApiWorkers.Services
 			KeywordConnections.Remove(keywordId);
 		}
 
-		private IEnumerable<RepoModel> ProcessNewRepos(int keywordId, IEnumerable<RepoModel> repos)
+		public IEnumerable<RepoModel> ProcessNewRepos(int keywordId, IEnumerable<RepoModel> repos)
 		{
 			Console.WriteLine("ProcessNewRepos");
 			var distinctRepos = distinctNameService.FilterUnique(keywordId, repos);
@@ -123,7 +123,7 @@ namespace GithubApiWorkers.Services
 			return distinctRepos;
 		}
 
-		private async Task<IEnumerable<RepoModel>> ProcessTop5(int keywordId, IEnumerable<RepoModel> repos)
+		public async Task<IEnumerable<RepoModel>> ProcessTop5(int keywordId, IEnumerable<RepoModel> repos)
 		{
 			Console.WriteLine("ProcessTop5");
 			var prevTop = await reposDataUpdate
@@ -162,7 +162,7 @@ namespace GithubApiWorkers.Services
 			}
 		}
 
-		private IEnumerable<LanguageModel> ProcessTopLanguages(int keywordId)
+		public IEnumerable<LanguageModel> ProcessTopLanguages(int keywordId)
 		{
 			Console.WriteLine("ProcessLanguages");
 			var langs = distinctNameService
